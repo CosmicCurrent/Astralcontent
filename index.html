@@ -2772,5 +2772,101 @@ document.addEventListener('DOMContentLoaded', init);
   </div>
 </div>
 <div class="dev-credit" aria-hidden="true"><a href="https://www.opticell-limited.com" target="_blank" rel="noopener">Opticell Limited</a></div>
+
+<!-- MEMBERS UNLOCK -->
+<button id="unlock-fab" onclick="document.getElementById('unlock-modal').style.display='flex'" style="position:fixed;bottom:24px;right:24px;z-index:9998;background:linear-gradient(135deg,#8015E8,#BA83F0);color:#fff;border:none;border-radius:999px;padding:0.9rem 1.4rem;font-family:system-ui,-apple-system,sans-serif;font-size:0.9rem;font-weight:600;box-shadow:0 8px 24px rgba(128,21,232,0.4);cursor:pointer;">
+  Unlock Full Reading
+</button>
+
+<div id="unlock-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(13,6,24,0.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(145deg,#1A0D30,#2B074D);border:1px solid rgba(186,131,240,0.3);border-radius:20px;padding:2rem;max-width:340px;width:90%;text-align:center;font-family:system-ui,-apple-system,sans-serif;">
+    <h3 style="color:#FDFAFF;font-family:Georgia,serif;margin-bottom:0.5rem;">Unlock Full Reading</h3>
+    <p style="color:#A296A1;font-size:0.85rem;margin-bottom:1.25rem;">Enter your membership code, sent to you by email, or the code given to you by Astral.</p>
+    <input id="unlock-code-input" type="text" placeholder="Enter your code" style="width:100%;box-sizing:border-box;padding:0.75rem;border-radius:10px;border:1px solid rgba(186,131,240,0.4);background:rgba(255,255,255,0.06);color:#fff;font-size:0.95rem;margin-bottom:1rem;">
+    <div id="unlock-error" style="color:#F3A78F;font-size:0.8rem;margin-bottom:0.75rem;display:none;"></div>
+    <button id="unlock-submit-btn" onclick="submitUnlockCode()" style="width:100%;padding:0.85rem;border:none;border-radius:12px;background:linear-gradient(135deg,#8015E8,#BA83F0);color:#fff;font-size:0.9rem;font-weight:500;cursor:pointer;margin-bottom:0.75rem;">
+      Unlock
+    </button>
+    <button onclick="openSignUpPage()" style="background:none;border:none;color:#756472;font-size:0.8rem;cursor:pointer;">
+      Not a member yet? <span style="text-decoration:underline;">Sign up here</span>
+    </button>
+  </div>
+</div>
+
+<script>
+function openSignUpPage() {
+  const signUpUrl = 'https://www.bextoftspiritualguidance.com/sign-up-area';
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
+    window.Capacitor.Plugins.Browser.open({ url: signUpUrl, toolbarColor: '#2B074D' });
+  } else {
+    window.open(signUpUrl, '_blank');
+  }
+}
+
+async function submitUnlockCode() {
+  const code = document.getElementById('unlock-code-input').value.trim();
+  const errorBox = document.getElementById('unlock-error');
+  const submitBtn = document.getElementById('unlock-submit-btn');
+  errorBox.style.display = 'none';
+
+  if (!code) {
+    errorBox.textContent = 'Please enter your code.';
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  submitBtn.textContent = 'Checking...';
+  submitBtn.disabled = true;
+
+  try {
+    const response = await fetch(
+      'https://www.bextoftspiritualguidance.com/_functions/getMembersContent?code=' +
+      encodeURIComponent(code) +
+      '&key=xR7q29fLmZpT4vKw'
+    );
+    const data = await response.json();
+
+    if (data.valid) {
+      try { localStorage.setItem('astral-member-code', code); } catch (e) {}
+      document.open();
+      document.write(data.content);
+      document.close();
+    } else {
+      errorBox.textContent = "That code wasn't recognised. Please check and try again.";
+      errorBox.style.display = 'block';
+      submitBtn.textContent = 'Unlock';
+      submitBtn.disabled = false;
+    }
+  } catch (err) {
+    errorBox.textContent = 'Something went wrong. Please check your connection and try again.';
+    errorBox.style.display = 'block';
+    submitBtn.textContent = 'Unlock';
+    submitBtn.disabled = false;
+  }
+}
+
+// If a code was already unlocked previously on this device, unlock automatically.
+(function tryAutoUnlock() {
+  let savedCode = null;
+  try { savedCode = localStorage.getItem('astral-member-code'); } catch (e) {}
+  if (savedCode) {
+    fetch(
+      'https://www.bextoftspiritualguidance.com/_functions/getMembersContent?code=' +
+      encodeURIComponent(savedCode) +
+      '&key=xR7q29fLmZpT4vKw'
+    )
+      .then(r => r.json())
+      .then(data => {
+        if (data.valid) {
+          document.open();
+          document.write(data.content);
+          document.close();
+        }
+      })
+      .catch(() => {});
+  }
+})();
+</script>
+
 </body>
 </html>
