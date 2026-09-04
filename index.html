@@ -2794,6 +2794,26 @@ document.addEventListener('DOMContentLoaded', init);
 </div>
 
 <script>
+function renderFullPage(htmlString) {
+  const parser = new DOMParser();
+  const newDoc = parser.parseFromString(htmlString, 'text/html');
+
+  document.title = newDoc.title || document.title;
+  document.documentElement.innerHTML = newDoc.documentElement.innerHTML;
+
+  // innerHTML doesn't execute <script> tags, so we manually recreate
+  // each one to force it to actually run, in the original order.
+  const oldScripts = Array.from(document.getElementsByTagName('script'));
+  oldScripts.forEach(oldScript => {
+    const newScript = document.createElement('script');
+    Array.from(oldScript.attributes).forEach(attr => {
+      newScript.setAttribute(attr.name, attr.value);
+    });
+    newScript.textContent = oldScript.textContent;
+    oldScript.parentNode.replaceChild(newScript, oldScript);
+  });
+}
+
 function openSignUpPage() {
   const signUpUrl = 'https://www.bextoftspiritualguidance.com/sign-up-area';
   if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
@@ -2828,9 +2848,7 @@ async function submitUnlockCode() {
 
     if (data.valid) {
       try { localStorage.setItem('astral-member-code', code); } catch (e) {}
-      const blob = new Blob([data.content], { type: 'text/html' });
-      const blobUrl = URL.createObjectURL(blob);
-      window.location.href = blobUrl;
+      renderFullPage(data.content);
     } else {
       errorBox.textContent = "That code wasn't recognised. Please check and try again.";
       errorBox.style.display = 'block';
@@ -2858,9 +2876,7 @@ async function submitUnlockCode() {
       .then(r => r.json())
       .then(data => {
         if (data.valid) {
-          const blob = new Blob([data.content], { type: 'text/html' });
-          const blobUrl = URL.createObjectURL(blob);
-          window.location.href = blobUrl;
+          renderFullPage(data.content);
         }
       })
       .catch(() => {});
