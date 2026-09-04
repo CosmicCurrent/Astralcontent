@@ -204,39 +204,6 @@ button, select, a, input { touch-action: manipulation; -webkit-tap-highlight-col
 @keyframes load-fill { to { width: 100%; } }
 @keyframes pulse-glow { 0%,100% { text-shadow: 0 0 20px rgba(186,131,240,0.5); } 50% { text-shadow: 0 0 40px rgba(186,131,240,0.9), 0 0 80px rgba(128,21,232,0.4); } }
 
-/* ===== INSTALL PROMPT (Add to Home Screen) ===== */
-#install-prompt {
-  position: fixed; inset: 0; z-index: 9999;
-  background: rgba(13,6,24,0.92); backdrop-filter: blur(12px);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-#install-prompt.visible { opacity: 1; visibility: visible; }
-#install-prompt .prompt-card {
-  background: linear-gradient(145deg, #1A0D30, #2B074D);
-  border: 1px solid rgba(186,131,240,0.3);
-  border-radius: 20px; padding: 2.5rem 2rem;
-  text-align: center; max-width: 340px; width: 90%;
-  box-shadow: 0 20px 60px rgba(128,21,232,0.3);
-  animation: float-in 0.6s ease-out;
-}
-@keyframes float-in { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-#install-prompt .prompt-icon { font-size: 3rem; color: #BA83F0; margin-bottom: 1rem; }
-#install-prompt h3 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.5rem; color: #FDFAFF; margin-bottom: 0.5rem; }
-#install-prompt p { font-size: 0.85rem; color: #A296A1; margin-bottom: 1.5rem; line-height: 1.6; }
-#install-prompt .install-steps { text-align: left; margin-bottom: 1.5rem; }
-#install-prompt .install-steps .step { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.8rem; color: #BCB2C4; }
-#install-prompt .install-steps .step i { color: #F3A78F; font-size: 0.9rem; width: 20px; text-align: center; }
-#install-prompt .btn-install {
-  width: 100%; padding: 0.85rem; border: none; border-radius: 12px;
-  background: linear-gradient(135deg, #8015E8, #BA83F0);
-  color: #fff; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 0.9rem; font-weight: 500;
-  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-}
-#install-prompt .btn-install:active { transform: scale(0.97); }
-#install-prompt .btn-dismiss { background: none; border: none; color: #756472; font-size: 0.8rem; margin-top: 1rem; cursor: pointer; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
-
 /* ===== STARFIELD BACKGROUND ===== */
 #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 #starfield canvas { width: 100%; height: 100%; }
@@ -1078,27 +1045,6 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
   <i class="fa-solid fa-moon logo-icon" aria-hidden="true"></i>
   <h2>ASTRAL</h2>
   <div class="loading-bar"><div class="loading-bar-fill"></div></div>
-</div>
-
-<!-- INSTALL PROMPT -->
-<div id="install-prompt" role="dialog" aria-label="Install Astral app">
-  <div class="prompt-card">
-    <i class="fa-solid fa-star-half-stroke prompt-icon" aria-hidden="true"></i>
-    <h3>Add Astral to Home Screen</h3>
-    <p>Install this app for quick access to your daily astral guidance, moon cycles, and horoscope readings.</p>
-    <div class="install-steps">
-      <div class="step"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i><span>Tap the <strong>Share</strong> button in your browser</span></div>
-      <div class="step"><i class="fa-solid fa-plus-square" aria-hidden="true"></i><span>Select <strong>Add to Home Screen</strong></span></div>
-      <div class="step"><i class="fa-solid fa-check-circle" aria-hidden="true"></i><span>Tap <strong>Add</strong> to confirm</span></div>
-    </div>
-    <button class="btn-install" id="btn-native-install" style="display:none;">
-      <i class="fa-solid fa-download" aria-hidden="true"></i> Install App
-    </button>
-    <button class="btn-install" id="btn-dismiss-install">
-      <i class="fa-solid fa-sparkles" aria-hidden="true"></i> Got it, let's explore
-    </button>
-    <button class="btn-dismiss" id="btn-skip-install">Maybe later</button>
-  </div>
 </div>
 
 <!-- THEME TOGGLE -->
@@ -2684,18 +2630,6 @@ function createParticles() {
   }
 }
 
-// ===== INSTALL PROMPT (iframe-safe) =====
-let installDismissed = false;
-try { installDismissed = sessionStorage.getItem('astral-install-dismissed') === 'true'; } catch(e) {}
-
-function dismissInstall() {
-  document.getElementById('install-prompt').classList.remove('visible');
-  try { sessionStorage.setItem('astral-install-dismissed', 'true'); } catch(e) {}
-}
-
-document.getElementById('btn-dismiss-install').addEventListener('click', dismissInstall);
-document.getElementById('btn-skip-install').addEventListener('click', dismissInstall);
-
 // ===== SERVICE WORKER REGISTRATION =====
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
@@ -2721,11 +2655,6 @@ function init() {
 
   setTimeout(() => {
     document.getElementById('loading-screen').classList.add('hidden');
-    if (!installDismissed) {
-      setTimeout(() => {
-        document.getElementById('install-prompt').classList.add('visible');
-      }, 500);
-    }
   }, 2800);
 }
 
