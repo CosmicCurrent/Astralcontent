@@ -2828,9 +2828,9 @@ async function submitUnlockCode() {
 
     if (data.valid) {
       try { localStorage.setItem('astral-member-code', code); } catch (e) {}
-      document.open();
-      document.write(data.content);
-      document.close();
+      const blob = new Blob([data.content], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+      window.location.href = blobUrl;
     } else {
       errorBox.textContent = "That code wasn't recognised. Please check and try again.";
       errorBox.style.display = 'block';
@@ -2858,9 +2858,9 @@ async function submitUnlockCode() {
       .then(r => r.json())
       .then(data => {
         if (data.valid) {
-          document.open();
-          document.write(data.content);
-          document.close();
+          const blob = new Blob([data.content], { type: 'text/html' });
+          const blobUrl = URL.createObjectURL(blob);
+          window.location.href = blobUrl;
         }
       })
       .catch(() => {});
