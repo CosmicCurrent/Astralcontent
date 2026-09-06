@@ -2795,30 +2795,20 @@ document.addEventListener('DOMContentLoaded', init);
 
 <script>
 function renderFullPage(htmlString) {
-  const parser = new DOMParser();
-  const newDoc = parser.parseFromString(htmlString, 'text/html');
+  document.body.innerHTML = '';
+  document.body.style.margin = '0';
+  document.body.style.overflow = 'hidden';
 
-  document.title = newDoc.title || document.title;
-  document.documentElement.innerHTML = newDoc.documentElement.innerHTML;
+  const frame = document.createElement('iframe');
+  frame.style.position = 'fixed';
+  frame.style.top = '0';
+  frame.style.left = '0';
+  frame.style.width = '100%';
+  frame.style.height = '100%';
+  frame.style.border = 'none';
+  frame.srcdoc = htmlString;
 
-  // innerHTML doesn't execute <script> tags, so we manually recreate
-  // each one to force it to actually run, in the original order.
-  const oldScripts = Array.from(document.getElementsByTagName('script'));
-  oldScripts.forEach(oldScript => {
-    const newScript = document.createElement('script');
-    Array.from(oldScript.attributes).forEach(attr => {
-      newScript.setAttribute(attr.name, attr.value);
-    });
-    newScript.textContent = oldScript.textContent;
-    oldScript.parentNode.replaceChild(newScript, oldScript);
-  });
-
-  // The new content's own startup code is likely waiting for events like
-  // "DOMContentLoaded" or "load" — but since we didn't do a real page
-  // navigation, those already fired earlier and won't fire again on their
-  // own. So we trigger them manually here to kick off its startup logic.
-  document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: false }));
-  window.dispatchEvent(new Event('load'));
+  document.body.appendChild(frame);
 }
 
 function openSignUpPage() {
