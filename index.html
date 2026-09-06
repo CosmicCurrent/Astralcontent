@@ -2794,6 +2794,12 @@ document.addEventListener('DOMContentLoaded', init);
 </div>
 
 <script>
+// Tell the native status bar not to overlap our content — fixes buttons
+// sitting too close to the notch/status bar area.
+if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+  window.Capacitor.Plugins.StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
+}
+
 function renderFullPage(htmlString) {
   document.body.innerHTML = '';
   document.body.style.margin = '0';
