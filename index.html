@@ -2812,6 +2812,13 @@ function renderFullPage(htmlString) {
     newScript.textContent = oldScript.textContent;
     oldScript.parentNode.replaceChild(newScript, oldScript);
   });
+
+  // The new content's own startup code is likely waiting for events like
+  // "DOMContentLoaded" or "load" — but since we didn't do a real page
+  // navigation, those already fired earlier and won't fire again on their
+  // own. So we trigger them manually here to kick off its startup logic.
+  document.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true, cancelable: false }));
+  window.dispatchEvent(new Event('load'));
 }
 
 function openSignUpPage() {
