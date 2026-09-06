@@ -240,7 +240,7 @@ button, select, a, input { touch-action: manipulation; -webkit-tap-highlight-col
 
 /* ===== THEME TOGGLE ===== */
 .theme-toggle {
-  position: fixed; top: 1rem; right: 1rem; z-index: 150;
+  position: fixed; top: calc(1rem + env(safe-area-inset-top)); right: 1rem; z-index: 150;
   width: 44px; height: 44px; border-radius: 50%;
   border: 1px solid var(--border-medium);
   background: var(--bg-secondary);
@@ -258,7 +258,7 @@ button, select, a, input { touch-action: manipulation; -webkit-tap-highlight-col
 
 /* ===== NOTIFICATION BELL ===== */
 .notification-toggle {
-  position: fixed; top: 1rem; right: 4rem; z-index: 150;
+  position: fixed; top: calc(1rem + env(safe-area-inset-top)); right: 4rem; z-index: 150;
   width: 44px; height: 44px; border-radius: 50%;
   border: 1px solid var(--border-medium);
   background: var(--bg-secondary);
@@ -726,7 +726,7 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
 
 /* ===== NOTIFICATION PANEL ===== */
 .notif-panel {
-  position: fixed; top: 60px; right: 1rem; z-index: 300;
+  position: fixed; top: calc(60px + env(safe-area-inset-top)); right: 1rem; z-index: 300;
   width: 300px; max-height: 400px; overflow-y: auto;
   background: var(--bg-nav); border: 1px solid var(--border-medium);
   border-radius: 16px; padding: 1rem;
@@ -1035,7 +1035,7 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
 .reading-modal-nav .modal-counter { font-size: 0.7rem; color: var(--text-muted); }
 </style>
 </head>
-<body><div style="background:limegreen;color:black;font-size:2rem;text-align:center;padding:1rem;position:fixed;top:0;left:0;right:0;z-index:99999;">IFRAME FIX V3</div>
+<body>
 
 <!-- SKIP LINK (accessibility) -->
 <a href="#main-content" class="skip-link">Skip to main content</a>
