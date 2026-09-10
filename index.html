@@ -1033,9 +1033,73 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
 .reading-modal-nav button:hover { background: var(--card-bg-hover); color: var(--text-primary); }
 .reading-modal-nav button:disabled { opacity: 0.3; cursor: default; }
 .reading-modal-nav .modal-counter { font-size: 0.7rem; color: var(--text-muted); }
+
+/* ===== APP TAB BAR (persistent across free + members states) ===== */
+#today-panel { padding-bottom: 76px; box-sizing: border-box; min-height: 100vh; }
+.app-tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 99999;
+  display: flex; align-items: stretch;
+  background: rgba(20, 9, 36, 0.92); backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(186,131,240,0.25);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.app-tab-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.2rem; padding: 0.6rem 0.5rem 0.55rem; background: none; border: none;
+  color: #A296A1; font-family: system-ui, -apple-system, sans-serif; font-size: 0.7rem;
+  cursor: pointer; transition: color 0.15s ease;
+}
+.app-tab-btn i { font-size: 1.1rem; }
+.app-tab-btn.active { color: #BA83F0; }
+
+.journal-panel {
+  display: none; position: fixed; inset: 0; z-index: 500; overflow-y: auto;
+  background: var(--bg-primary, #0D0616); padding: 1.25rem 1.1rem calc(90px + env(safe-area-inset-bottom, 0));
+  box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif;
+}
+.journal-panel.active { display: block; }
+.journal-header { margin-bottom: 1.1rem; }
+.journal-header h2 { color: #FDFAFF; font-family: Georgia, serif; font-size: 1.4rem; margin: 0 0 0.2rem; }
+.journal-header p { color: #A296A1; font-size: 0.82rem; margin: 0; }
+.journal-entry-box {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(186,131,240,0.25); border-radius: 16px;
+  padding: 1rem; margin-bottom: 1.5rem;
+}
+.journal-entry-box label { display: block; color: #BA83F0; font-size: 0.75rem; margin-bottom: 0.5rem; }
+.journal-textarea {
+  width: 100%; box-sizing: border-box; min-height: 110px; resize: vertical;
+  padding: 0.75rem; border-radius: 10px; border: 1px solid rgba(186,131,240,0.4);
+  background: rgba(255,255,255,0.06); color: #fff; font-size: 0.9rem; font-family: inherit;
+  line-height: 1.5; margin-bottom: 0.75rem;
+}
+.journal-save-btn {
+  width: 100%; padding: 0.8rem; border: none; border-radius: 12px;
+  background: linear-gradient(135deg,#8015E8,#BA83F0); color: #fff; font-size: 0.88rem;
+  font-weight: 500; cursor: pointer;
+}
+.journal-save-btn:disabled { opacity: 0.5; }
+.journal-saved-note { color: #8FD0A9; font-size: 0.78rem; margin-top: 0.6rem; text-align: center; display: none; }
+.journal-list-heading { color: #FDFAFF; font-size: 0.9rem; margin: 0 0 0.75rem; opacity: 0.85; }
+.journal-entry-card {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(186,131,240,0.15); border-radius: 14px;
+  padding: 0.9rem 1rem; margin-bottom: 0.75rem;
+}
+.journal-entry-date { color: #BA83F0; font-size: 0.72rem; margin-bottom: 0.4rem; }
+.journal-entry-text { color: #D8CFE0; font-size: 0.87rem; line-height: 1.6; white-space: pre-wrap; margin: 0; }
+.journal-entry-delete {
+  background: none; border: none; color: #756472; font-size: 0.72rem; cursor: pointer;
+  margin-top: 0.5rem; padding: 0; text-decoration: underline;
+}
+.journal-empty { color: #756472; font-size: 0.85rem; text-align: center; padding: 2rem 1rem; }
 </style>
 </head>
 <body>
+
+<!-- TODAY PANEL: everything below is the existing free/members app. This whole
+     block gets replaced-in-place when a member unlocks (see renderFullPage),
+     but the app tab bar and Journal panel below it are never touched, so
+     Journal stays available in every state. -->
+<div id="today-panel">
 
 <!-- SKIP LINK (accessibility) -->
 <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -2796,6 +2860,36 @@ document.addEventListener('DOMContentLoaded', init);
   </div>
 </div>
 
+</div><!-- /#today-panel -->
+
+<!-- PERSISTENT APP TAB BAR — sits outside #today-panel, survives unlock -->
+<nav class="app-tabbar" id="app-tabbar" role="tablist" aria-label="App sections">
+  <button class="app-tab-btn active" id="tab-btn-today" data-app-tab="today" role="tab" aria-selected="true">
+    <i class="fa-solid fa-sparkles" aria-hidden="true"></i><span>Today</span>
+  </button>
+  <button class="app-tab-btn" id="tab-btn-journal" data-app-tab="journal" role="tab" aria-selected="false">
+    <i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Journal</span>
+  </button>
+</nav>
+
+<!-- JOURNAL PANEL — new, separate destination, own storage, untouched by monthly content updates -->
+<section class="journal-panel" id="journal-panel" role="tabpanel" aria-label="Journal">
+  <div class="journal-header">
+    <h2>My Journal</h2>
+    <p id="journal-date-label">Reflecting on today</p>
+  </div>
+
+  <div class="journal-entry-box">
+    <label for="journal-textarea">Today's reflection</label>
+    <textarea class="journal-textarea" id="journal-textarea" placeholder="What's on your mind today?"></textarea>
+    <button class="journal-save-btn" id="journal-save-btn" onclick="saveJournalEntry()">Save entry</button>
+    <div class="journal-saved-note" id="journal-saved-note">Saved ✓</div>
+  </div>
+
+  <h3 class="journal-list-heading">Past entries</h3>
+  <div id="journal-entries-list"></div>
+</section>
+
 <script>
 // Tell the native status bar not to overlap our content — fixes buttons
 // sitting too close to the notch/status bar area.
@@ -2804,20 +2898,125 @@ if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Sta
 }
 
 function renderFullPage(htmlString) {
-  document.body.innerHTML = '';
-  document.body.style.margin = '0';
-  document.body.style.overflow = 'hidden';
+  // Only replace the Today panel's content — the app tab bar and Journal
+  // panel are outside #today-panel and are never touched, so Journal stays
+  // available whether someone is on the free page or unlocked as a member.
+  const todayPanel = document.getElementById('today-panel');
+  todayPanel.innerHTML = '';
+  todayPanel.style.padding = '0';
+  todayPanel.style.margin = '0';
+  todayPanel.style.overflow = 'hidden';
+  todayPanel.style.minHeight = '0';
 
   const frame = document.createElement('iframe');
   frame.style.position = 'fixed';
   frame.style.top = '0';
   frame.style.left = '0';
   frame.style.width = '100%';
-  frame.style.height = '100%';
+  frame.style.height = 'calc(100% - 76px)';
   frame.style.border = 'none';
   frame.srcdoc = htmlString;
 
-  document.body.appendChild(frame);
+  todayPanel.appendChild(frame);
+}
+
+// ===== APP TAB BAR (Today / Journal) =====
+function switchAppTab(tab) {
+  const today = document.getElementById('today-panel');
+  const journal = document.getElementById('journal-panel');
+  const btnToday = document.getElementById('tab-btn-today');
+  const btnJournal = document.getElementById('tab-btn-journal');
+
+  if (tab === 'journal') {
+    today.style.display = 'none';
+    journal.classList.add('active');
+    btnToday.classList.remove('active'); btnToday.setAttribute('aria-selected', 'false');
+    btnJournal.classList.add('active'); btnJournal.setAttribute('aria-selected', 'true');
+    renderJournalEntries();
+  } else {
+    today.style.display = '';
+    journal.classList.remove('active');
+    btnJournal.classList.remove('active'); btnJournal.setAttribute('aria-selected', 'false');
+    btnToday.classList.add('active'); btnToday.setAttribute('aria-selected', 'true');
+  }
+}
+document.getElementById('tab-btn-today').addEventListener('click', () => switchAppTab('today'));
+document.getElementById('tab-btn-journal').addEventListener('click', () => switchAppTab('journal'));
+
+// ===== JOURNAL STORAGE (on-device only, separate from monthly content) =====
+const JOURNAL_KEY = 'astral-journal-entries';
+
+function getJournalEntries() {
+  try {
+    return JSON.parse(localStorage.getItem(JOURNAL_KEY) || '[]');
+  } catch (e) { return []; }
+}
+
+function setJournalEntries(entries) {
+  try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(entries)); } catch (e) {}
+}
+
+function todayDateLabel() {
+  return new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function saveJournalEntry() {
+  const textarea = document.getElementById('journal-textarea');
+  const text = textarea.value.trim();
+  if (!text) return;
+
+  const entries = getJournalEntries();
+  const todayKey = new Date().toDateString();
+  const existingIdx = entries.findIndex(e => e.dateKey === todayKey);
+  const entry = { dateKey: todayKey, dateLabel: todayDateLabel(), text, savedAt: Date.now() };
+
+  if (existingIdx > -1) entries[existingIdx] = entry;
+  else entries.unshift(entry);
+
+  setJournalEntries(entries);
+  textarea.value = '';
+
+  const note = document.getElementById('journal-saved-note');
+  note.style.display = 'block';
+  setTimeout(() => { note.style.display = 'none'; }, 2000);
+
+  renderJournalEntries();
+}
+
+function deleteJournalEntry(dateKey) {
+  const entries = getJournalEntries().filter(e => e.dateKey !== dateKey);
+  setJournalEntries(entries);
+  renderJournalEntries();
+}
+
+function renderJournalEntries() {
+  document.getElementById('journal-date-label').textContent = 'Reflecting on ' + todayDateLabel();
+
+  const entries = getJournalEntries();
+  const list = document.getElementById('journal-entries-list');
+
+  // Pre-fill today's box if an entry already exists for today
+  const todayKey = new Date().toDateString();
+  const todaysEntry = entries.find(e => e.dateKey === todayKey);
+  const textarea = document.getElementById('journal-textarea');
+  if (todaysEntry && document.activeElement !== textarea) textarea.value = todaysEntry.text;
+
+  if (!entries.length) {
+    list.innerHTML = '<div class="journal-empty">No entries yet — your reflections will appear here.</div>';
+    return;
+  }
+
+  list.innerHTML = entries.map(e => `
+    <div class="journal-entry-card">
+      <div class="journal-entry-date">${e.dateLabel}</div>
+      <p class="journal-entry-text"></p>
+      <button class="journal-entry-delete" onclick="deleteJournalEntry('${e.dateKey}')">Delete</button>
+    </div>
+  `).join('');
+
+  // Set text content safely (avoids HTML injection from stored entries)
+  const cards = list.querySelectorAll('.journal-entry-text');
+  entries.forEach((e, i) => { cards[i].textContent = e.text; });
 }
 
 function openSignUpPage() {
