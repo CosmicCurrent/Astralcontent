@@ -1157,6 +1157,9 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
       <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
       <span id="location-text">Detecting location...</span>
     </p>
+    <button id="unlock-header-btn" onclick="document.getElementById('unlock-modal').style.display='flex'" style="margin-top:0.9rem;background:linear-gradient(135deg,#8015E8,#BA83F0);color:#fff;border:none;border-radius:999px;padding:0.7rem 1.3rem;font-family:system-ui,-apple-system,sans-serif;font-size:0.85rem;font-weight:600;box-shadow:0 6px 18px rgba(128,21,232,0.35);cursor:pointer;">
+      <i class="fa-solid fa-key" aria-hidden="true"></i> Unlock Full Reading
+    </button>
   </header>
 
   <!-- TOP NAV -->
@@ -2839,11 +2842,6 @@ document.addEventListener('DOMContentLoaded', init);
   </div>
 </div>
 <div class="dev-credit" aria-hidden="true"><a href="https://www.opticell-limited.com" target="_blank" rel="noopener">Opticell Limited</a></div>
-
-<!-- MEMBERS UNLOCK -->
-<button id="unlock-fab" onclick="document.getElementById('unlock-modal').style.display='flex'" style="position:fixed;bottom:calc(76px + env(safe-area-inset-bottom, 0px) + 16px);right:24px;z-index:9998;background:linear-gradient(135deg,#8015E8,#BA83F0);color:#fff;border:none;border-radius:999px;padding:0.9rem 1.4rem;font-family:system-ui,-apple-system,sans-serif;font-size:0.9rem;font-weight:600;box-shadow:0 8px 24px rgba(128,21,232,0.4);cursor:pointer;">
-  Unlock Full Reading
-</button>
 
 <div id="unlock-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(13,6,24,0.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;">
   <div style="background:linear-gradient(145deg,#1A0D30,#2B074D);border:1px solid rgba(186,131,240,0.3);border-radius:20px;padding:2rem;max-width:340px;width:90%;text-align:center;font-family:system-ui,-apple-system,sans-serif;">
