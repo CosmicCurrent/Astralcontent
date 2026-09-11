@@ -1091,6 +1091,22 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
   margin-top: 0.5rem; padding: 0; text-decoration: underline;
 }
 .journal-empty { color: #756472; font-size: 0.85rem; text-align: center; padding: 2rem 1rem; }
+
+.moon-mood-scale { display: flex; justify-content: space-between; gap: 0.4rem; margin-top: 0.5rem; }
+.moon-mood-option {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(186,131,240,0.2); border-radius: 12px;
+  padding: 0.6rem 0.2rem; color: #A296A1; font-size: 0.65rem; cursor: pointer; transition: all 0.15s ease;
+}
+.moon-mood-option i { font-size: 1rem; }
+.moon-mood-option.selected { background: rgba(186,131,240,0.25); border-color: #BA83F0; color: #FDFAFF; }
+
+.power-move-toggle { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
+.pm-toggle-btn {
+  flex: 1; padding: 0.7rem 0.5rem; border-radius: 12px; border: 1px solid rgba(186,131,240,0.25);
+  background: rgba(255,255,255,0.05); color: #D8CFE0; font-size: 0.8rem; cursor: pointer; transition: all 0.15s ease;
+}
+.pm-toggle-btn.selected { background: linear-gradient(135deg,#8015E8,#BA83F0); border-color: transparent; color: #fff; }
 </style>
 </head>
 <body>
@@ -1298,6 +1314,33 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
     </div>
   </div>
 
+  <!-- ===== COSMIC CURRENT SECTION (PAYWALLED — shows free users what they're missing) ===== -->
+  <div class="section" id="sec-cosmiccurrent" role="tabpanel" aria-labelledby="Daily Cosmic Current">
+    <h2 class="section-title"><i class="fa-solid fa-star" aria-hidden="true"></i> Daily Cosmic Current</h2>
+    <div class="paywall-gate">
+      <div class="paywall-card">
+        <i class="fa-solid fa-lock paywall-icon" aria-hidden="true"></i>
+        <h3>Your Daily Cosmic Current</h3>
+        <p>Every single day of the month has its own guidance waiting for you — tap any date to reveal what's unfolding, key transits, and exactly how to work with the energy that day. Updated monthly with the latest astrology.</p>
+        <div class="paywall-features">
+          <span class="paywall-feature"><i class="fa-solid fa-check" aria-hidden="true"></i> A guidance entry for every day</span>
+          <span class="paywall-feature"><i class="fa-solid fa-check" aria-hidden="true"></i> Key transits explained simply</span>
+          <span class="paywall-feature"><i class="fa-solid fa-check" aria-hidden="true"></i> Updated with the month's energy</span>
+        </div>
+        <a href="https://www.bextoftspiritualguidance.com/sign-up-area" class="paywall-btn">
+          <i class="fa-solid fa-key" aria-hidden="true"></i> Unlock Full Access
+        </a>
+      </div>
+    </div>
+    <div class="section-blurred" aria-hidden="true">
+      <div class="card">
+        <div class="card">✦ 1 September – Strong Foundations</div>
+        <div class="card">✦ 2 September – Confidence Creates Momentum</div>
+        <div class="card">✦ 3 September – Refine the Vision</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== PLANETS SECTION (PAYWALLED) ===== -->
   <div class="section" id="sec-planets" role="tabpanel" aria-labelledby="Planets">
     <h2 class="section-title"><i class="fa-solid fa-globe" aria-hidden="true"></i> Planetary Transits</h2>
@@ -1382,6 +1425,10 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
 <div class="more-drawer-overlay" id="more-drawer-overlay" role="dialog" aria-label="More sections menu">
   <div class="more-drawer" id="more-drawer">
     <div class="more-drawer-handle"></div>
+    <button class="more-drawer-item" data-section="cosmiccurrent">
+      <span class="icon-purple"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+      <span>Daily Cosmic Current</span>
+    </button>
     <button class="more-drawer-item" data-section="sun">
       <span class="icon-coral"><i class="fa-solid fa-sun" aria-hidden="true"></i></span>
       <span>Solar Tracker</span>
@@ -2884,6 +2931,44 @@ document.addEventListener('DOMContentLoaded', init);
     <div class="journal-saved-note" id="journal-saved-note">Saved ✓</div>
   </div>
 
+  <!-- MOOD + POWER MOVE TRACKER — live for members, locked preview for free users -->
+  <div id="journal-tracker-live" style="display:none;">
+    <div class="journal-entry-box">
+      <label>How are you feeling today?</label>
+      <div class="moon-mood-scale" id="moon-mood-scale">
+        <button class="moon-mood-option" data-mood="1" aria-label="New moon — low"><i class="fa-solid fa-circle" aria-hidden="true"></i><span>New</span></button>
+        <button class="moon-mood-option" data-mood="2" aria-label="Waxing crescent"><i class="fa-solid fa-moon" aria-hidden="true"></i><span>Waxing</span></button>
+        <button class="moon-mood-option" data-mood="3" aria-label="Half moon — balanced"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Half</span></button>
+        <button class="moon-mood-option" data-mood="4" aria-label="Waning gibbous"><i class="fa-solid fa-moon" style="transform:scaleX(-1)" aria-hidden="true"></i><span>Waning</span></button>
+        <button class="moon-mood-option" data-mood="5" aria-label="Full moon — high"><i class="fa-regular fa-circle" aria-hidden="true"></i><span>Full</span></button>
+      </div>
+
+      <label style="margin-top:1.1rem;display:block;">Did you complete today's Power Move?</label>
+      <div class="power-move-toggle" id="power-move-toggle">
+        <button class="pm-toggle-btn" data-pm="yes"><i class="fa-solid fa-check" aria-hidden="true"></i> Yes, I did it</button>
+        <button class="pm-toggle-btn" data-pm="no"><i class="fa-regular fa-clock" aria-hidden="true"></i> Not yet</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="journal-tracker-locked" class="paywall-gate" style="position:relative;margin-bottom:1.5rem;">
+    <div class="paywall-card">
+      <i class="fa-solid fa-lock paywall-icon" aria-hidden="true"></i>
+      <h3>Track Your Mood &amp; Progress</h3>
+      <p>Members can log how they're feeling each day using our moon-phase mood scale, and track whether they followed through on that day's Power Move — building a picture of your patterns over time.</p>
+      <a href="https://www.bextoftspiritualguidance.com/sign-up-area" class="paywall-btn">
+        <i class="fa-solid fa-key" aria-hidden="true"></i> Unlock Full Access
+      </a>
+    </div>
+    <div class="section-blurred" aria-hidden="true" style="max-height:160px;padding:1rem;">
+      <div class="moon-mood-scale">
+        <button class="moon-mood-option" data-mood="1"><i class="fa-solid fa-circle" aria-hidden="true"></i><span>New</span></button>
+        <button class="moon-mood-option" data-mood="3"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Half</span></button>
+        <button class="moon-mood-option" data-mood="5"><i class="fa-regular fa-circle" aria-hidden="true"></i><span>Full</span></button>
+      </div>
+    </div>
+  </div>
+
   <h3 class="journal-list-heading">Past entries</h3>
   <div id="journal-entries-list"></div>
 </section>
@@ -2999,6 +3084,20 @@ function renderJournalEntries() {
   const textarea = document.getElementById('journal-textarea');
   if (todaysEntry && document.activeElement !== textarea) textarea.value = todaysEntry.text;
 
+  // Restore today's mood/power-move selections if already set
+  if (window.astralIsMember) {
+    document.querySelectorAll('.moon-mood-option').forEach(btn => btn.classList.remove('selected'));
+    document.querySelectorAll('.pm-toggle-btn').forEach(btn => btn.classList.remove('selected'));
+    if (todaysEntry && todaysEntry.mood) {
+      const moodBtn = document.querySelector('#journal-tracker-live .moon-mood-option[data-mood="' + todaysEntry.mood + '"]');
+      if (moodBtn) moodBtn.classList.add('selected');
+    }
+    if (todaysEntry && todaysEntry.powerMove) {
+      const pmBtn = document.querySelector('.pm-toggle-btn[data-pm="' + todaysEntry.powerMove + '"]');
+      if (pmBtn) pmBtn.classList.add('selected');
+    }
+  }
+
   if (!entries.length) {
     list.innerHTML = '<div class="journal-empty">No entries yet — your reflections will appear here.</div>';
     return;
@@ -3006,7 +3105,7 @@ function renderJournalEntries() {
 
   list.innerHTML = entries.map(e => `
     <div class="journal-entry-card">
-      <div class="journal-entry-date">${e.dateLabel}</div>
+      <div class="journal-entry-date">${e.dateLabel}${e.mood ? ' · ' + moodLabel(e.mood) : ''}${e.powerMove ? ' · Power Move: ' + (e.powerMove === 'yes' ? 'Done ✓' : 'Not yet') : ''}</div>
       <p class="journal-entry-text"></p>
       <button class="journal-entry-delete" onclick="deleteJournalEntry('${e.dateKey}')">Delete</button>
     </div>
@@ -3016,6 +3115,68 @@ function renderJournalEntries() {
   const cards = list.querySelectorAll('.journal-entry-text');
   entries.forEach((e, i) => { cards[i].textContent = e.text; });
 }
+
+function moodLabel(mood) {
+  return { '1': 'New moon', '2': 'Waxing', '3': 'Half moon', '4': 'Waning', '5': 'Full moon' }[mood] || '';
+}
+
+// ===== MOOD + POWER MOVE TRACKER (members only) =====
+function updateJournalTrackerAccess() {
+  const live = document.getElementById('journal-tracker-live');
+  const locked = document.getElementById('journal-tracker-locked');
+  if (!live || !locked) return;
+  if (window.astralIsMember) {
+    live.style.display = '';
+    locked.style.display = 'none';
+  } else {
+    live.style.display = 'none';
+    locked.style.display = '';
+  }
+}
+
+function saveTodayMood(mood) {
+  const entries = getJournalEntries();
+  const todayKey = new Date().toDateString();
+  let entry = entries.find(e => e.dateKey === todayKey);
+  if (!entry) {
+    entry = { dateKey: todayKey, dateLabel: todayDateLabel(), text: '', savedAt: Date.now() };
+    entries.unshift(entry);
+  }
+  entry.mood = mood;
+  setJournalEntries(entries);
+}
+
+function saveTodayPowerMove(status) {
+  const entries = getJournalEntries();
+  const todayKey = new Date().toDateString();
+  let entry = entries.find(e => e.dateKey === todayKey);
+  if (!entry) {
+    entry = { dateKey: todayKey, dateLabel: todayDateLabel(), text: '', savedAt: Date.now() };
+    entries.unshift(entry);
+  }
+  entry.powerMove = status;
+  setJournalEntries(entries);
+}
+
+document.querySelectorAll('#journal-tracker-live .moon-mood-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#journal-tracker-live .moon-mood-option').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    saveTodayMood(btn.dataset.mood);
+  });
+});
+
+document.querySelectorAll('.pm-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pm-toggle-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    saveTodayPowerMove(btn.dataset.pm);
+  });
+});
+
+// Check member status on load in case a code was already validated this session
+document.addEventListener('DOMContentLoaded', updateJournalTrackerAccess);
+updateJournalTrackerAccess();
 
 function openSignUpPage() {
   const signUpUrl = 'https://www.bextoftspiritualguidance.com/sign-up-area';
@@ -3051,6 +3212,8 @@ async function submitUnlockCode() {
 
     if (data.valid) {
       try { localStorage.setItem('astral-member-code', code); } catch (e) {}
+      window.astralIsMember = true;
+      updateJournalTrackerAccess();
       renderFullPage(data.content);
     } else {
       errorBox.textContent = "That code wasn't recognised. Please check and try again.";
@@ -3079,6 +3242,8 @@ async function submitUnlockCode() {
       .then(r => r.json())
       .then(data => {
         if (data.valid) {
+          window.astralIsMember = true;
+          updateJournalTrackerAccess();
           renderFullPage(data.content);
         }
       })
