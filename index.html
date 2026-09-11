@@ -1092,14 +1092,33 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
 }
 .journal-empty { color: #756472; font-size: 0.85rem; text-align: center; padding: 2rem 1rem; }
 
-.moon-mood-scale { display: flex; justify-content: space-between; gap: 0.4rem; margin-top: 0.5rem; }
-.moon-mood-option {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(186,131,240,0.2); border-radius: 12px;
-  padding: 0.6rem 0.2rem; color: #A296A1; font-size: 0.65rem; cursor: pointer; transition: all 0.15s ease;
+.tracker-row { margin-bottom: 1.3rem; }
+.tracker-row:last-child { margin-bottom: 0; }
+.tracker-row-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
+.tracker-icon {
+  width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  background: rgba(45,217,196,0.18); color: #2DD9C4; font-size: 0.95rem; flex-shrink: 0;
 }
-.moon-mood-option i { font-size: 1rem; }
-.moon-mood-option.selected { background: rgba(186,131,240,0.25); border-color: #BA83F0; color: #FDFAFF; }
+.tracker-label { color: #D8CFE0; font-size: 0.85rem; line-height: 1.3; }
+.tracker-slider {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, #2DD9C4 0%, #2DD9C4 0%, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.1) 100%);
+  outline: none; cursor: pointer; margin: 10px 0 4px;
+}
+.tracker-slider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: transparent; }
+.tracker-slider::-moz-range-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); }
+.tracker-slider::-moz-range-progress { height: 6px; border-radius: 3px; background: #2DD9C4; }
+.tracker-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 26px; height: 26px; cursor: grab; margin-top: -10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232DD9C4'%3E%3Cpath d='M12 2l2.9 6.9 7.1.6-5.4 4.6 1.6 7-6.2-3.9-6.2 3.9 1.6-7L2 9.5l7.1-.6z'/%3E%3C/svg%3E");
+  background-size: contain; background-repeat: no-repeat;
+}
+.tracker-slider::-moz-range-thumb {
+  width: 26px; height: 26px; border: none; cursor: grab;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232DD9C4'%3E%3Cpath d='M12 2l2.9 6.9 7.1.6-5.4 4.6 1.6 7-6.2-3.9-6.2 3.9 1.6-7L2 9.5l7.1-.6z'/%3E%3C/svg%3E");
+  background-size: contain; background-repeat: no-repeat;
+}
+.tracker-value-label { text-align: right; font-size: 0.7rem; color: #2DD9C4; margin-top: -2px; }
 
 .power-move-toggle { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
 .pm-toggle-btn {
@@ -2931,22 +2950,56 @@ document.addEventListener('DOMContentLoaded', init);
     <div class="journal-saved-note" id="journal-saved-note">Saved ✓</div>
   </div>
 
-  <!-- MOOD + POWER MOVE TRACKER — live for members, locked preview for free users -->
+  <!-- PROGRESS TRACKER — live for members, locked preview for free users -->
   <div id="journal-tracker-live" style="display:none;">
     <div class="journal-entry-box">
-      <label>How are you feeling today?</label>
-      <div class="moon-mood-scale" id="moon-mood-scale">
-        <button class="moon-mood-option" data-mood="1" aria-label="New moon — low"><i class="fa-solid fa-circle" aria-hidden="true"></i><span>New</span></button>
-        <button class="moon-mood-option" data-mood="2" aria-label="Waxing crescent"><i class="fa-solid fa-moon" aria-hidden="true"></i><span>Waxing</span></button>
-        <button class="moon-mood-option" data-mood="3" aria-label="Half moon — balanced"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Half</span></button>
-        <button class="moon-mood-option" data-mood="4" aria-label="Waning gibbous"><i class="fa-solid fa-moon" style="transform:scaleX(-1)" aria-hidden="true"></i><span>Waning</span></button>
-        <button class="moon-mood-option" data-mood="5" aria-label="Full moon — high"><i class="fa-regular fa-circle" aria-hidden="true"></i><span>Full</span></button>
+      <div class="tracker-row" data-metric="goals">
+        <div class="tracker-row-header">
+          <span class="tracker-icon"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+          <span class="tracker-label">Did you complete your actions/goals today?</span>
+        </div>
+        <input type="range" class="tracker-slider" data-metric="goals" min="1" max="5" step="1" value="1">
+        <div class="tracker-value-label" data-metric-label="goals">1 / 5</div>
       </div>
 
-      <label style="margin-top:1.1rem;display:block;">Did you complete today's Power Move?</label>
-      <div class="power-move-toggle" id="power-move-toggle">
-        <button class="pm-toggle-btn" data-pm="yes"><i class="fa-solid fa-check" aria-hidden="true"></i> Yes, I did it</button>
-        <button class="pm-toggle-btn" data-pm="no"><i class="fa-regular fa-clock" aria-hidden="true"></i> Not yet</button>
+      <div class="tracker-row" data-metric="powerMove">
+        <div class="tracker-row-header">
+          <span class="tracker-icon"><i class="fa-solid fa-moon" aria-hidden="true"></i></span>
+          <span class="tracker-label">Did you complete your Power Move?</span>
+        </div>
+        <input type="range" class="tracker-slider" data-metric="powerMove" min="1" max="5" step="1" value="1">
+        <div class="tracker-value-label" data-metric-label="powerMove">1 / 5</div>
+      </div>
+
+      <div class="tracker-row" data-metric="feeling">
+        <div class="tracker-row-header">
+          <span class="tracker-icon"><i class="fa-solid fa-sparkles" aria-hidden="true"></i></span>
+          <span class="tracker-label">How do you feel today?</span>
+        </div>
+        <input type="range" class="tracker-slider" data-metric="feeling" min="1" max="5" step="1" value="1">
+        <div class="tracker-value-label" data-metric-label="feeling">1 / 5</div>
+      </div>
+
+      <div class="tracker-row" data-metric="futureSelf">
+        <div class="tracker-row-header">
+          <span class="tracker-icon"><i class="fa-solid fa-heart" aria-hidden="true"></i></span>
+          <span class="tracker-label">I did something today that my future self would thank me for.</span>
+        </div>
+        <div class="power-move-toggle" data-metric="futureSelf">
+          <button class="pm-toggle-btn" data-pm="yes">Yes</button>
+          <button class="pm-toggle-btn" data-pm="no">Not today</button>
+        </div>
+      </div>
+
+      <div class="tracker-row" data-metric="movedForward">
+        <div class="tracker-row-header">
+          <span class="tracker-icon"><i class="fa-solid fa-compass" aria-hidden="true"></i></span>
+          <span class="tracker-label">I took at least one action today that moved me closer to a goal or dream.</span>
+        </div>
+        <div class="power-move-toggle" data-metric="movedForward">
+          <button class="pm-toggle-btn" data-pm="yes">Yes</button>
+          <button class="pm-toggle-btn" data-pm="no">Not today</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2954,18 +3007,14 @@ document.addEventListener('DOMContentLoaded', init);
   <div id="journal-tracker-locked" class="paywall-gate" style="position:relative;margin-bottom:1.5rem;">
     <div class="paywall-card">
       <i class="fa-solid fa-lock paywall-icon" aria-hidden="true"></i>
-      <h3>Track Your Mood &amp; Progress</h3>
-      <p>Members can log how they're feeling each day using our moon-phase mood scale, and track whether they followed through on that day's Power Move — building a picture of your patterns over time.</p>
+      <h3>Track Your Progress</h3>
+      <p>Members can log daily progress against their goals and Power Move, track how they're feeling, and check in on two daily affirmations — building a picture of your patterns over time.</p>
       <a href="https://www.bextoftspiritualguidance.com/sign-up-area" class="paywall-btn">
         <i class="fa-solid fa-key" aria-hidden="true"></i> Unlock Full Access
       </a>
     </div>
-    <div class="section-blurred" aria-hidden="true" style="max-height:160px;padding:1rem;">
-      <div class="moon-mood-scale">
-        <button class="moon-mood-option" data-mood="1"><i class="fa-solid fa-circle" aria-hidden="true"></i><span>New</span></button>
-        <button class="moon-mood-option" data-mood="3"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Half</span></button>
-        <button class="moon-mood-option" data-mood="5"><i class="fa-regular fa-circle" aria-hidden="true"></i><span>Full</span></button>
-      </div>
+    <div class="section-blurred" aria-hidden="true" style="max-height:100px;padding:1rem;">
+      <input type="range" class="tracker-slider" min="1" max="5" value="3" disabled>
     </div>
   </div>
 
@@ -3072,6 +3121,13 @@ function deleteJournalEntry(dateKey) {
   renderJournalEntries();
 }
 
+const PROGRESS_METRICS = ['goals', 'powerMove', 'feeling'];
+const TOGGLE_METRICS = ['futureSelf', 'movedForward'];
+const METRIC_LABELS = {
+  goals: 'Actions/Goals', powerMove: 'Power Move', feeling: 'Feeling',
+  futureSelf: 'Future Self', movedForward: 'Moved Forward'
+};
+
 function renderJournalEntries() {
   document.getElementById('journal-date-label').textContent = 'Reflecting on ' + todayDateLabel();
 
@@ -3084,18 +3140,29 @@ function renderJournalEntries() {
   const textarea = document.getElementById('journal-textarea');
   if (todaysEntry && document.activeElement !== textarea) textarea.value = todaysEntry.text;
 
-  // Restore today's mood/power-move selections if already set
+  // Restore today's tracker selections if already set (members only)
   if (window.astralIsMember) {
-    document.querySelectorAll('.moon-mood-option').forEach(btn => btn.classList.remove('selected'));
-    document.querySelectorAll('.pm-toggle-btn').forEach(btn => btn.classList.remove('selected'));
-    if (todaysEntry && todaysEntry.mood) {
-      const moodBtn = document.querySelector('#journal-tracker-live .moon-mood-option[data-mood="' + todaysEntry.mood + '"]');
-      if (moodBtn) moodBtn.classList.add('selected');
-    }
-    if (todaysEntry && todaysEntry.powerMove) {
-      const pmBtn = document.querySelector('.pm-toggle-btn[data-pm="' + todaysEntry.powerMove + '"]');
-      if (pmBtn) pmBtn.classList.add('selected');
-    }
+    document.querySelectorAll('#journal-tracker-live .pm-toggle-btn').forEach(b => b.classList.remove('selected'));
+
+    PROGRESS_METRICS.forEach(metric => {
+      const value = todaysEntry ? todaysEntry[metric] : null;
+      if (value) {
+        const slider = document.querySelector('#journal-tracker-live .tracker-slider[data-metric="' + metric + '"]');
+        if (slider) {
+          slider.value = value;
+          updateSliderFill(slider);
+          const label = document.querySelector('[data-metric-label="' + metric + '"]');
+          if (label) label.textContent = value + ' / 5';
+        }
+      }
+    });
+    TOGGLE_METRICS.forEach(metric => {
+      const value = todaysEntry ? todaysEntry[metric] : null;
+      if (value) {
+        const btn = document.querySelector('#journal-tracker-live .power-move-toggle[data-metric="' + metric + '"] .pm-toggle-btn[data-pm="' + value + '"]');
+        if (btn) btn.classList.add('selected');
+      }
+    });
   }
 
   if (!entries.length) {
@@ -3103,24 +3170,25 @@ function renderJournalEntries() {
     return;
   }
 
-  list.innerHTML = entries.map(e => `
+  list.innerHTML = entries.map(e => {
+    const tags = [];
+    PROGRESS_METRICS.forEach(m => { if (e[m]) tags.push(METRIC_LABELS[m] + ' ' + e[m] + '/5'); });
+    TOGGLE_METRICS.forEach(m => { if (e[m]) tags.push(METRIC_LABELS[m] + ': ' + (e[m] === 'yes' ? 'Yes' : 'Not today')); });
+    return `
     <div class="journal-entry-card">
-      <div class="journal-entry-date">${e.dateLabel}${e.mood ? ' · ' + moodLabel(e.mood) : ''}${e.powerMove ? ' · Power Move: ' + (e.powerMove === 'yes' ? 'Done ✓' : 'Not yet') : ''}</div>
+      <div class="journal-entry-date">${e.dateLabel}${tags.length ? ' · ' + tags.join(' · ') : ''}</div>
       <p class="journal-entry-text"></p>
       <button class="journal-entry-delete" onclick="deleteJournalEntry('${e.dateKey}')">Delete</button>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   // Set text content safely (avoids HTML injection from stored entries)
   const cards = list.querySelectorAll('.journal-entry-text');
   entries.forEach((e, i) => { cards[i].textContent = e.text; });
 }
 
-function moodLabel(mood) {
-  return { '1': 'New moon', '2': 'Waxing', '3': 'Half moon', '4': 'Waning', '5': 'Full moon' }[mood] || '';
-}
-
-// ===== MOOD + POWER MOVE TRACKER (members only) =====
+// ===== PROGRESS TRACKER (members only) =====
 function updateJournalTrackerAccess() {
   const live = document.getElementById('journal-tracker-live');
   const locked = document.getElementById('journal-tracker-locked');
@@ -3134,7 +3202,7 @@ function updateJournalTrackerAccess() {
   }
 }
 
-function saveTodayMood(mood) {
+function saveTodayMetric(metric, value) {
   const entries = getJournalEntries();
   const todayKey = new Date().toDateString();
   let entry = entries.find(e => e.dateKey === todayKey);
@@ -3142,35 +3210,38 @@ function saveTodayMood(mood) {
     entry = { dateKey: todayKey, dateLabel: todayDateLabel(), text: '', savedAt: Date.now() };
     entries.unshift(entry);
   }
-  entry.mood = mood;
+  entry[metric] = value;
   setJournalEntries(entries);
 }
 
-function saveTodayPowerMove(status) {
-  const entries = getJournalEntries();
-  const todayKey = new Date().toDateString();
-  let entry = entries.find(e => e.dateKey === todayKey);
-  if (!entry) {
-    entry = { dateKey: todayKey, dateLabel: todayDateLabel(), text: '', savedAt: Date.now() };
-    entries.unshift(entry);
-  }
-  entry.powerMove = status;
-  setJournalEntries(entries);
+function updateSliderFill(slider) {
+  const min = parseInt(slider.min, 10) || 1;
+  const max = parseInt(slider.max, 10) || 5;
+  const val = parseInt(slider.value, 10);
+  const pct = ((val - min) / (max - min)) * 100;
+  slider.style.background = 'linear-gradient(to right, #2DD9C4 0%, #2DD9C4 ' + pct + '%, rgba(255,255,255,0.1) ' + pct + '%, rgba(255,255,255,0.1) 100%)';
 }
 
-document.querySelectorAll('#journal-tracker-live .moon-mood-option').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#journal-tracker-live .moon-mood-option').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    saveTodayMood(btn.dataset.mood);
+document.querySelectorAll('#journal-tracker-live .tracker-slider').forEach(slider => {
+  const metric = slider.dataset.metric;
+  updateSliderFill(slider);
+  slider.addEventListener('input', () => {
+    const value = parseInt(slider.value, 10);
+    const label = document.querySelector('[data-metric-label="' + metric + '"]');
+    if (label) label.textContent = value + ' / 5';
+    updateSliderFill(slider);
+    saveTodayMetric(metric, value);
   });
 });
 
-document.querySelectorAll('.pm-toggle-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.pm-toggle-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    saveTodayPowerMove(btn.dataset.pm);
+document.querySelectorAll('#journal-tracker-live .power-move-toggle[data-metric]').forEach(group => {
+  const metric = group.dataset.metric;
+  group.querySelectorAll('.pm-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.pm-toggle-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      saveTodayMetric(metric, btn.dataset.pm);
+    });
   });
 });
 
