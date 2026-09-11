@@ -3275,6 +3275,7 @@ document.querySelectorAll('#journal-tracker-live .tracker-slider').forEach(slide
     const value = parseInt(slider.value, 10);
     updateSliderFill(slider);
     saveTodayMetric(metric, value);
+    renderWeeklyRecap(getJournalEntries());
   });
 });
 
@@ -3285,6 +3286,7 @@ document.querySelectorAll('#journal-tracker-live .power-move-toggle[data-metric]
       group.querySelectorAll('.pm-toggle-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       saveTodayMetric(metric, btn.dataset.pm);
+      renderWeeklyRecap(getJournalEntries());
     });
   });
 });
