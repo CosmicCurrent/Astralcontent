@@ -1120,6 +1120,12 @@ header .location-info i { margin-right: 0.3rem; color: var(--accent-coral); }
 }
 .tracker-value-label { text-align: right; font-size: 0.7rem; color: #2DD9C4; margin-top: -2px; }
 
+.recap-row { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.recap-row:last-child { border-bottom: none; }
+.recap-row-label { color: #D8CFE0; font-size: 0.82rem; }
+.recap-row-value { color: #2DD9C4; font-size: 0.85rem; font-weight: 600; }
+.recap-empty { color: #756472; font-size: 0.82rem; padding: 0.5rem 0; }
+
 .power-move-toggle { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
 .pm-toggle-btn {
   flex: 1; padding: 0.7rem 0.5rem; border-radius: 12px; border: 1px solid rgba(186,131,240,0.25);
@@ -2959,7 +2965,6 @@ document.addEventListener('DOMContentLoaded', init);
           <span class="tracker-label">Did you complete your actions/goals today?</span>
         </div>
         <input type="range" class="tracker-slider" data-metric="goals" min="1" max="5" step="1" value="1">
-        <div class="tracker-value-label" data-metric-label="goals">1 / 5</div>
       </div>
 
       <div class="tracker-row" data-metric="powerMove">
@@ -2968,7 +2973,6 @@ document.addEventListener('DOMContentLoaded', init);
           <span class="tracker-label">Did you complete your Power Move?</span>
         </div>
         <input type="range" class="tracker-slider" data-metric="powerMove" min="1" max="5" step="1" value="1">
-        <div class="tracker-value-label" data-metric-label="powerMove">1 / 5</div>
       </div>
 
       <div class="tracker-row" data-metric="feeling">
@@ -2977,7 +2981,6 @@ document.addEventListener('DOMContentLoaded', init);
           <span class="tracker-label">How do you feel today?</span>
         </div>
         <input type="range" class="tracker-slider" data-metric="feeling" min="1" max="5" step="1" value="1">
-        <div class="tracker-value-label" data-metric-label="feeling">1 / 5</div>
       </div>
 
       <div class="tracker-row" data-metric="futureSelf">
@@ -3002,13 +3005,18 @@ document.addEventListener('DOMContentLoaded', init);
         </div>
       </div>
     </div>
+
+    <div class="journal-entry-box" id="weekly-recap-box">
+      <label>This week</label>
+      <div id="weekly-recap-content"></div>
+    </div>
   </div>
 
   <div id="journal-tracker-locked" class="paywall-gate" style="position:relative;margin-bottom:1.5rem;">
     <div class="paywall-card">
       <i class="fa-solid fa-lock paywall-icon" aria-hidden="true"></i>
       <h3>Track Your Progress</h3>
-      <p>Members can log daily progress against their goals and Power Move, track how they're feeling, and check in on two daily affirmations — building a picture of your patterns over time.</p>
+      <p>Members can log daily progress against their goals and Power Move, track how they're feeling, check in on two daily affirmations, and see a weekly recap of it all — building a picture of your patterns over time.</p>
       <a href="https://www.bextoftspiritualguidance.com/sign-up-area" class="paywall-btn">
         <i class="fa-solid fa-key" aria-hidden="true"></i> Unlock Full Access
       </a>
@@ -3128,10 +3136,50 @@ const METRIC_LABELS = {
   futureSelf: 'Future Self', movedForward: 'Moved Forward'
 };
 
+function renderWeeklyRecap(entries) {
+  const container = document.getElementById('weekly-recap-content');
+  if (!container) return;
+
+  const now = Date.now();
+  const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+  const weekEntries = entries.filter(e => {
+    const t = new Date(e.dateKey).getTime();
+    return t >= sevenDaysAgo && t <= now;
+  });
+
+  if (!weekEntries.length) {
+    container.innerHTML = '<div class="recap-empty">No entries in the last 7 days yet.</div>';
+    return;
+  }
+
+  const avg = (metric) => {
+    const vals = weekEntries.map(e => e[metric]).filter(v => v);
+    if (!vals.length) return null;
+    return (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1);
+  };
+  const yesCount = (metric) => weekEntries.filter(e => e[metric] === 'yes').length;
+
+  const rows = [];
+  rows.push(['Days journaled', weekEntries.length + ' / 7']);
+  const goalsAvg = avg('goals');
+  if (goalsAvg) rows.push(['Avg. actions/goals', goalsAvg + ' / 5']);
+  const pmAvg = avg('powerMove');
+  if (pmAvg) rows.push(['Avg. Power Move', pmAvg + ' / 5']);
+  const feelAvg = avg('feeling');
+  if (feelAvg) rows.push(['Avg. feeling', feelAvg + ' / 5']);
+  rows.push(['Future self — Yes', yesCount('futureSelf') + ' / ' + weekEntries.length]);
+  rows.push(['Moved forward — Yes', yesCount('movedForward') + ' / ' + weekEntries.length]);
+
+  container.innerHTML = rows.map(([label, value]) =>
+    '<div class="recap-row"><span class="recap-row-label">' + label + '</span><span class="recap-row-value">' + value + '</span></div>'
+  ).join('');
+}
+
 function renderJournalEntries() {
   document.getElementById('journal-date-label').textContent = 'Reflecting on ' + todayDateLabel();
 
   const entries = getJournalEntries();
+  if (window.astralIsMember) renderWeeklyRecap(entries);
   const list = document.getElementById('journal-entries-list');
 
   // Pre-fill today's box if an entry already exists for today
@@ -3151,8 +3199,6 @@ function renderJournalEntries() {
         if (slider) {
           slider.value = value;
           updateSliderFill(slider);
-          const label = document.querySelector('[data-metric-label="' + metric + '"]');
-          if (label) label.textContent = value + ' / 5';
         }
       }
     });
@@ -3227,8 +3273,6 @@ document.querySelectorAll('#journal-tracker-live .tracker-slider').forEach(slide
   updateSliderFill(slider);
   slider.addEventListener('input', () => {
     const value = parseInt(slider.value, 10);
-    const label = document.querySelector('[data-metric-label="' + metric + '"]');
-    if (label) label.textContent = value + ' / 5';
     updateSliderFill(slider);
     saveTodayMetric(metric, value);
   });
